@@ -5,8 +5,7 @@ package lambertw
 *
 *	 TODOS:
 *	 ------
-* 
-*	- Simple Startup
+*
 *	- Implement Tests
 *	- Benchmark this mess
 *	- Split in multiple files
@@ -20,7 +19,7 @@ import (
 	"math"
 )
 
-type W struct {
+type w struct {
 	branch  int
 	x float64
 }
@@ -96,7 +95,7 @@ func hornerLib(t interface{},order int, x float64) float64 {
 	return 0
 }
 
-func (w *W) setup(branch int) {
+func (w *w) setup(branch int) {
 	if branch < 0 {
 		w.branch = -1
 		return
@@ -108,7 +107,7 @@ func (w *W) setup(branch int) {
 	}
 }
 
-func (w *W) router() (res float64) {
+func (w *w) router() (res float64) {
 	if w.branch == 0 {
 		res = w.router0()
 	}
@@ -118,7 +117,7 @@ func (w *W) router() (res float64) {
 	return res
 }
 
-func (w *W) router0() float64{
+func (w *w) router0() float64{
 	if w.x < 1.38 {
 		if w.x < -0.311 {
 			if w.x < -0.367679 {
@@ -143,7 +142,7 @@ func (w *W) router0() float64{
 	return i.recurse(w.x, b.asymptoticExpansion(w.x))
 }
 
-func (w *W) router1() float64 {
+func (w *w) router1() float64 {
 	if w.x < -0.0509 {
 		if w.x < -0.366079 {
 			if w.x < -0.367579 {
@@ -344,4 +343,10 @@ func (l *logRecursionImpl) Step(logsx float64) float64 {
 	}
 	logRecursionImpl := logRecursionImpl{sgn: l.sgn, branch: l.branch, order: l.order - 1}
 	return logsx - math.Log(l.sgn * logRecursionImpl.Step(logsx))
+}
+
+func W(branch int, x float64) float64 {
+	wOfX := new(w)
+	wOfX.setup(branch)
+	return wOfX.router()
 }

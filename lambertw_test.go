@@ -13,7 +13,7 @@ func TestW_setup (t *testing.T) {
 		{"Zero Branch", 0, 0}, {"-1 Branch", -1, -1}, {"Conversion", -100, -1}, {"Rejection", 12, 1},
 	}
 	for _,test := range tests {
-		w := new(W)
+		w := new(w)
 		t.Run(test.name, func(t *testing.T) {
 			w.setup(test.input)
 			got := w.branch
@@ -26,9 +26,9 @@ func TestW_setup (t *testing.T) {
 }
 
 func TestW_router(t *testing.T) {
-	w := new(W)
+	w := new(w)
 	w.setup(-1)
-	w.x = -0.1
+	w.x = 5
 	got := w.router()
 	t.Logf("Result is: %.10f", got)
 }
