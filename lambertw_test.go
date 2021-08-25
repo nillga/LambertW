@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestW_Setup (t *testing.T) {
+func TestW_setup (t *testing.T) {
 	tests := []struct{
 		name string
 		input int
@@ -15,8 +15,8 @@ func TestW_Setup (t *testing.T) {
 	for _,test := range tests {
 		w := new(W)
 		t.Run(test.name, func(t *testing.T) {
-			w.Setup(test.input)
-			got := w.Branch
+			w.setup(test.input)
+			got := w.branch
 
 			if got != test.want {
 				t.Errorf("Error: Got %d but wanted %d", got, test.want)
@@ -25,10 +25,10 @@ func TestW_Setup (t *testing.T) {
 	}
 }
 
-func TestW_Router(t *testing.T) {
+func TestW_router(t *testing.T) {
 	w := new(W)
-	w.Setup(-1)
-	w.X = -0.1
-	got := w.Router()
+	w.setup(-1)
+	w.x = -0.1
+	got := w.router()
 	t.Logf("Result is: %.10f", got)
 }
