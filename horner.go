@@ -8,7 +8,7 @@ type horner struct {
 func (h *horner) eval(x float64) float64 {
 	p := polynomial{h.tag, h.order}
 	if h.order == 0 {
-		p.coeff()
+		return p.coeff()
 	}
 	horner := horner{h.tag, h.order-1}
 	return horner.recurse(p.coeff(),x)
