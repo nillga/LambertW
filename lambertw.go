@@ -6,6 +6,7 @@ package lambertw
 *	 TODOS:
 *	 ------
 * 
+*	- Simple Startup + exportation
 *	- Implement Tests
 *	- Benchmark this mess
 *	- Split in multiple files
