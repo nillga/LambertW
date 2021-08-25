@@ -64,32 +64,11 @@ var asymptoticBs = [][]float64{
 	{0,-1},{0,1},{0,-1,0.5},{0,1,-3.0/2.0,1.0/3.0},{0,-1,3,-11.0/6.0,0.25},{0,1,-5,35.0/6.0,-25.0/12.0,0.2},
 }
 
-func hornerLib(t interface{},order int, x float64) float64 {
-	switch param := t.(type) {
-	case string:
-		switch t {
-		case "branchPoint":
-			return branchPoints[order]
-		case "AsymptoticPolynomialA":
-			switch order {
-			case 0:
-				return -x
-			case 1:
-				return x
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-				h := horner{order,order}
-				return h.eval(x)
-			}
-		}	
-	case int:
-		return asymptoticBs[param][order]
-	}
-	return 0
+func W(branch int, x float64) float64 {
+	wOfX := new(w)
+	wOfX.setup(branch)
+	return wOfX.router()
 }
-
 func (w *w) setup(branch int) {
 	if branch < 0 {
 		w.branch = -1
@@ -111,7 +90,6 @@ func (w *w) router() (res float64) {
 	}
 	return res
 }
-
 func (w *w) router0() float64{
 	if w.x < 1.38 {
 		if w.x < -0.311 {
@@ -136,7 +114,6 @@ func (w *w) router0() float64{
 	b := branch{order: 6-1, branch: 0}
 	return i.recurse(w.x, b.asymptoticExpansion(w.x))
 }
-
 func (w *w) router1() float64 {
 	if w.x < -0.0509 {
 		if w.x < -0.366079 {
@@ -177,11 +154,23 @@ func (b *branch) branchPointExpansion(x float64) float64 {
 	h := horner{"branchPoint", b.order}
 	return h.eval(sgn * math.Sqrt(2.0 * (math.E * x + 1)))
 }
+func (b *branch) asymptoticExpansion(x float64) float64 {
+	sgn := float64(2 * b.branch + 1)
+	logsx := math.Log(sgn * x)
+	logslogsx := math.Log(sgn * logsx)
+
+	return asymptoticExpansionImpl(logsx,logslogsx,b.order)
+}
+func (b *branch) logRecursion(x float64) float64 {
+	sgn := float64(2 * b.branch + 1)
+
+	l := logRecursionImpl{sgn: sgn, branch: b.branch, order: b.order}
+	return l.step(math.Log(sgn * x))
+}
 
 func (p *polynomial) coeff() float64 {
 	return hornerLib(p.tag, p.order,0)
 }
-
 func (p *polynomial) coeff2(x float64) float64 {
 	return hornerLib(p.tag, p.order,x)
 }
@@ -244,6 +233,45 @@ func (p *pade) approximation(x float64) float64 {
 	return 0
 }
 
+func asymptoticExpansionImpl(a,b float64, order int) float64 {
+	h := horner{"AsymptoticPolynomialA", order}
+
+	return a + h.eval2(1/a,b)
+}
+func (l *logRecursionImpl) step(logsx float64) float64 {
+	if l.order == 0 {
+		return logsx
+	}
+	logRecursionImpl := logRecursionImpl{sgn: l.sgn, branch: l.branch, order: l.order - 1}
+	return logsx - math.Log(l.sgn * logRecursionImpl.step(logsx))
+}
+
+func hornerLib(t interface{},order int, x float64) float64 {
+	switch param := t.(type) {
+	case string:
+		switch t {
+		case "branchPoint":
+			return branchPoints[order]
+		case "AsymptoticPolynomialA":
+			switch order {
+			case 0:
+				return -x
+			case 1:
+				return x
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+				h := horner{order,order}
+				return h.eval(x)
+			}
+		}	
+	case int:
+		return asymptoticBs[param][order]
+	}
+	return 0
+}
+
 func horner0 (x, c0 float64) float64 {
 	return c0
 }
@@ -273,39 +301,4 @@ func horner8 (x, c8,c7,c6,c5,c4,c3,c2,c1, c0 float64) float64 {
 }
 func horner9 (x, c9,c8,c7,c6,c5,c4,c3,c2,c1, c0 float64) float64 {
 	return horner8(x, c9*x+c8,c7,c6,c5,c4,c3,c2,c1,c0)
-}
-
-func (b *branch) asymptoticExpansion(x float64) float64 {
-	sgn := float64(2 * b.branch + 1)
-	logsx := math.Log(sgn * x)
-	logslogsx := math.Log(sgn * logsx)
-
-	return asymptoticExpansionImpl(logsx,logslogsx,b.order)
-}
-
-func asymptoticExpansionImpl(a,b float64, order int) float64 {
-	h := horner{"AsymptoticPolynomialA", order}
-
-	return a + h.eval2(1/a,b)
-}
-
-func (b *branch) logRecursion(x float64) float64 {
-	sgn := float64(2 * b.branch + 1)
-
-	l := logRecursionImpl{sgn: sgn, branch: b.branch, order: b.order}
-	return l.step(math.Log(sgn * x))
-}
-
-func (l *logRecursionImpl) step(logsx float64) float64 {
-	if l.order == 0 {
-		return logsx
-	}
-	logRecursionImpl := logRecursionImpl{sgn: l.sgn, branch: l.branch, order: l.order - 1}
-	return logsx - math.Log(l.sgn * logRecursionImpl.step(logsx))
-}
-
-func W(branch int, x float64) float64 {
-	wOfX := new(w)
-	wOfX.setup(branch)
-	return wOfX.router()
 }
