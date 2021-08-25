@@ -271,34 +271,3 @@ func hornerLib(t interface{},order int, x float64) float64 {
 	}
 	return 0
 }
-
-func horner0 (x, c0 float64) float64 {
-	return c0
-}
-func horner1 (x, c1, c0 float64) float64 {
-	return horner0(x, c1*x+c0)
-}
-func horner2 (x, c2, c1, c0 float64) float64 {
-	return horner1(x, c2*x+c1, c0)
-}
-func horner3 (x, c3,c2,c1, c0 float64) float64 {
-	return horner2(x, c3*x+c2,c1,c0)
-}
-func horner4 (x, c4,c3,c2,c1, c0 float64) float64 {
-	return horner3(x, c4*x+c3,c2,c1,c0)
-}
-func horner5 (x, c5,c4,c3,c2,c1, c0 float64) float64 {
-	return horner4(x, c5*x+c4,c3,c2,c1,c0)
-}
-func horner6 (x, c6,c5,c4,c3,c2,c1, c0 float64) float64 {
-	return horner5(x, c6*x+c5,c4,c3,c2,c1,c0)
-}
-func horner7 (x, c7,c6,c5,c4,c3,c2,c1, c0 float64) float64 {
-	return horner6(x, c7*x+c6,c5,c4,c3,c2,c1,c0)
-}
-func horner8 (x, c8,c7,c6,c5,c4,c3,c2,c1, c0 float64) float64 {
-	return horner7(x, c8*x+c7,c6,c5,c4,c3,c2,c1,c0)
-}
-func horner9 (x, c9,c8,c7,c6,c5,c4,c3,c2,c1, c0 float64) float64 {
-	return horner8(x, c9*x+c8,c7,c6,c5,c4,c3,c2,c1,c0)
-}
