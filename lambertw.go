@@ -56,10 +56,6 @@ type LogRecursionImpl struct {
 	branch int
 }
 
-type AsymptoticPolynomialB struct {
-	Order int
-}
-
 type HORNERFUNC func(float64) float64
 type IterationStep func(float64,float64) float64
 
@@ -90,7 +86,7 @@ func HornerLib(t interface{},order int, x float64) float64 {
 			case 3:
 			case 4:
 			case 5:
-				h := Horner{AsymptoticPolynomialB{order},order}
+				h := Horner{order,order}
 				return h.Eval(x)
 			}
 		}	
