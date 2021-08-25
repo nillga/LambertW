@@ -112,10 +112,10 @@ func (w *W) Setup(branch int) {
 }
 
 func (w *W) Router() (res float64) {
-	if w.X == 0 {
+	if w.Branch == 0 {
 		res = w.Router0()
 	}
-	if w.X == -1 {
+	if w.Branch == -1 {
 		res = w.Router1()
 	}
 	return res

@@ -25,10 +25,10 @@ func TestW_Setup (t *testing.T) {
 	}
 }
 
-func TestW_Router0(t *testing.T) {
+func TestW_Router(t *testing.T) {
 	w := new(W)
-	w.Setup(0)
-	w.X = 3
-	got := w.Router0()
+	w.Setup(-1)
+	w.X = -0.1
+	got := w.Router()
 	t.Logf("Result is: %.10f", got)
 }
