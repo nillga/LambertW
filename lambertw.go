@@ -1,5 +1,19 @@
 package lambertw
 
+/*
+*	## CREDITS GO TO DARKO VEBERIC, WHO IMPLEMENTED THIS METHOD FIRST, IN C++ ##
+*
+*	 TODOS:
+*	 ------
+* 
+*	- Implement Tests
+*	- Benchmark this mess
+*	- Split in multiple files
+*	- refactoring
+*	- add / test mezö integrals and / or fukushima methodz
+*
+*/
+
 import (
 	"fmt"
 	"math"
