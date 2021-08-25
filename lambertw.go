@@ -35,6 +35,12 @@ type Pade struct {
 	N int
 }
 
+type LogRecursionImpl struct {
+	sgn float64
+	order int
+	branch int
+}
+
 type AsymptoticPolynomialB struct {
 	Order int
 }
@@ -130,23 +136,35 @@ func (w *W) Router1() float64 {
 	if w.X < -0.0509 {
 		if w.X < -0.366079 {
 			if w.X < -0.367579 {
-			//	(Branch<d, -1>::BranchPointExpansion<8>(x))
+				b := Branch{Order: 8, Branch: -1}
+				return b.BranchPointExpansion(w.X)
 			}
-		//	(Iterator<d, HalleyStep<d> >::Depth<1>::Recurse(x, Branch<d, -1>::BranchPointExpansion<4>(x)))
+			i := Iterator{HalleyStep, 1}
+			b := Branch{Order: 4, Branch: -1}
+			return i.Recurse(w.X, b.BranchPointExpansion(w.X))
 		}
 		if w.X < -0.289379 {
-		//	(Iterator<d, HalleyStep<d> >::Depth<1>::Recurse(x, Pade<d, -1, 7>::Approximation(x)))
+			i := Iterator{HalleyStep,1}
+			p := Pade{Branch: -1, N: 7}
+			return i.Recurse(w.X, p.Approximation(w.X))
 		}
-	//	(Iterator<d, HalleyStep<d> >::Depth<1>::Recurse(x, Pade<d, -1, 4>::Approximation(x)))
+		i := Iterator{HalleyStep,1}
+		p := Pade{Branch: -1, N: 4}
+		return i.Recurse(w.X, p.Approximation(w.X))
 	}
 	if w.X < -0.000131826 {
-	//	(Iterator<d, HalleyStep<d> >::Depth<1>::Recurse(x, Pade<d, -1, 5>::Approximation(x)))
+		i:= Iterator{HalleyStep,1}
+		p := Pade{Branch: -1, N: 5}
+		return i.Recurse(w.X, p.Approximation(w.X))
 	}
 	if w.X < -6.30957e-31 {
-	//	(Iterator<d, HalleyStep<d> >::Depth<1>::Recurse(x, Pade<d, -1, 6>::Approximation(x)))
+		i:= Iterator{HalleyStep,1}
+		p := Pade{Branch: -1, N: 6}
+		return i.Recurse(w.X, p.Approximation(w.X))
 	}
-//	(Iterator<d, HalleyStep<d> >::Depth<1>::Recurse(x, Branch<d, -1>::LogRecursion<3>(x)))
-	return 0
+	i:= Iterator{HalleyStep,1}
+	b := Branch{Branch: -1, Order: 3}
+	return i.Recurse(w.X, b.LogRecursion(w.X))
 }
 
 func (b *Branch) BranchPointExpansion(x float64) float64 {
@@ -300,4 +318,19 @@ func AsymptoticExpansionImpl(a,b float64, order int) float64 {
 	h := Horner{"AsymptoticPolynomialA", order}
 
 	return a + h.Eval2(1/a,b)
+}
+
+func (b *Branch) LogRecursion(x float64) float64 {
+	sgn := float64(2 * b.Branch + 1)
+
+	l := LogRecursionImpl{sgn: sgn, branch: b.Branch, order: b.Order}
+	return l.Step(math.Log(sgn * x))
+}
+
+func (l *LogRecursionImpl) Step(logsx float64) float64 {
+	if l.order == 0 {
+		return logsx
+	}
+	logRecursionImpl := LogRecursionImpl{sgn: l.sgn, branch: l.branch, order: l.order - 1}
+	return logsx - math.Log(l.sgn * logRecursionImpl.Step(logsx))
 }
