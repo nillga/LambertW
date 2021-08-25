@@ -334,15 +334,15 @@ func (b *branch) logRecursion(x float64) float64 {
 	sgn := float64(2 * b.branch + 1)
 
 	l := logRecursionImpl{sgn: sgn, branch: b.branch, order: b.order}
-	return l.Step(math.Log(sgn * x))
+	return l.step(math.Log(sgn * x))
 }
 
-func (l *logRecursionImpl) Step(logsx float64) float64 {
+func (l *logRecursionImpl) step(logsx float64) float64 {
 	if l.order == 0 {
 		return logsx
 	}
 	logRecursionImpl := logRecursionImpl{sgn: l.sgn, branch: l.branch, order: l.order - 1}
-	return logsx - math.Log(l.sgn * logRecursionImpl.Step(logsx))
+	return logsx - math.Log(l.sgn * logRecursionImpl.step(logsx))
 }
 
 func W(branch int, x float64) float64 {
