@@ -26,6 +26,7 @@ type w struct {
 type branch struct {
 	branch int
 	order int
+	sgn float64
 }
 type polynomial struct {
 	tag interface{}
@@ -88,13 +89,14 @@ func (w *w) router() (res float64) {
 }
 func (w *w) router0() float64{
 	i := iterator{halleyStep,1}
+	b := branch{branch: 0, sgn: 1}
 	if w.x < 1.38 {
 		if w.x < -0.311 {
 			if w.x < -0.367679 {
-				b := branch{order: 8, branch: 0}
+				b.order = 8
 				return b.branchPointExpansion(w.x)
 			}
-			b := branch{order: 10, branch: 0}
+			b.order = 10
 			return i.recurse(w.x,b.branchPointExpansion(w.x))
 		}
 		p := pade{branch: 0, N: 1}
@@ -104,18 +106,19 @@ func (w *w) router0() float64{
 		p := pade{branch: 0, N: 2}
 		return i.recurse(w.x,p.approximation(w.x)) 
 	}
-	b := branch{order: 6-1, branch: 0}
+	b.order = 6-1
 	return i.recurse(w.x, b.asymptoticExpansion(w.x))
 }
 func (w *w) router1() float64 {
 	i := iterator{halleyStep,1}
+	b := branch{branch: -1, sgn: -1}
 	if w.x < -0.0509 {
 		if w.x < -0.366079 {
 			if w.x < -0.367579 {
-				b := branch{order: 8, branch: -1}
+				b.order = 8
 				return b.branchPointExpansion(w.x)
 			}
-			b := branch{order: 4, branch: -1}
+			b.order = 4
 			return i.recurse(w.x, b.branchPointExpansion(w.x))
 		}
 		if w.x < -0.289379 {
@@ -133,27 +136,23 @@ func (w *w) router1() float64 {
 		p := pade{branch: -1, N: 6}
 		return i.recurse(w.x, p.approximation(w.x))
 	}
-	b := branch{branch: -1, order: 3}
+	b.order = 3
 	return i.recurse(w.x, b.logRecursion(w.x))
 }
 
 func (b *branch) branchPointExpansion(x float64) float64 {
-	sgn := float64(2 * b.branch + 1)
 	h := horner{"branchPoint", b.order}
-	return h.eval(sgn * math.Sqrt(2.0 * (math.E * x + 1)))
+	return h.eval(b.sgn * math.Sqrt(2.0 * (math.E * x + 1)))
 }
 func (b *branch) asymptoticExpansion(x float64) float64 {
-	sgn := float64(2 * b.branch + 1)
-	logsx := math.Log(sgn * x)
-	logslogsx := math.Log(sgn * logsx)
+	logsx := math.Log(b.sgn * x)
+	logslogsx := math.Log(b.sgn * logsx)
 
 	return asymptoticExpansionImpl(logsx,logslogsx,b.order)
 }
 func (b *branch) logRecursion(x float64) float64 {
-	sgn := float64(2 * b.branch + 1)
-
-	l := logRecursionImpl{sgn: sgn, branch: b.branch, order: b.order}
-	return l.step(math.Log(sgn * x))
+	l := logRecursionImpl{sgn: b.sgn, branch: b.branch, order: b.order}
+	return l.step(math.Log(b.sgn * x))
 }
 
 func (p *polynomial) coeff() float64 {
