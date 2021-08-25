@@ -29,11 +29,6 @@ type branch struct {
 	order int
 }
 
-type horner struct {
-	tag interface{}
-	order int
-}
-
 type polynomial struct {
 	tag interface{}
 	order int
@@ -181,42 +176,6 @@ func (b *branch) branchPointExpansion(x float64) float64 {
 	sgn := float64(2 * b.branch + 1)
 	h := horner{"branchPoint", b.order}
 	return h.eval(sgn * math.Sqrt(2.0 * (math.E * x + 1)))
-}
-
-func (h *horner) eval(x float64) float64 {
-	p := polynomial{h.tag, h.order}
-	if h.order == 0 {
-		p.coeff()
-	}
-	horner := horner{h.tag, h.order-1}
-	return horner.recurse(p.coeff(),x)
-}
-
-func (h *horner) eval2(x,y float64) float64 {
-	p := polynomial{h.tag,h.order}
-	if h.order == 0 {
-		return p.coeff2(y)
-	}
-	horner := horner{h.tag,h.order-1}
-	return horner.recurse2(p.coeff2(y),x,y)
-}
-
-func (h *horner) recurse(term,x float64) float64 {
-	p := polynomial{h.tag,h.order}
-	if h.order == 0 {
-		return term*x+p.coeff()
-	}
-	horner := horner{h.tag, h.order-1}
-	return horner.recurse(term*x+p.coeff(), x)
-}
-
-func (h *horner) recurse2(term,x,y float64) float64 {
-	p := polynomial{h.tag,h.order}
-	if h.order == 0 {
-		return term*x+p.coeff2(y)
-	}
-	horner := horner{h.tag, h.order-1}
-	return horner.recurse2(term*x+p.coeff2(y), x, y)
 }
 
 func (p *polynomial) coeff() float64 {
