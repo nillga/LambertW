@@ -1,6 +1,8 @@
 package lambertw
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestW_Setup (t *testing.T) {
 	tests := []struct{
@@ -21,4 +23,12 @@ func TestW_Setup (t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestW_Router0(t *testing.T) {
+	w := new(W)
+	w.Setup(0)
+	w.X = 3
+	got := w.Router0()
+	t.Logf("Result is: %.10f", got)
 }
