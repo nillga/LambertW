@@ -27,14 +27,6 @@ func TestW_setup (t *testing.T) {
 	}
 }
 
-func TestW_router(t *testing.T) {
-	w := new(w)
-	w.setup(-1)
-	w.x = 5
-	got := w.router()
-	t.Logf("Result is: %.10f", got)
-}
-
 func TestPolynomial_coeff (t *testing.T) {
 	t.Run("BranchPoint", func(t *testing.T) {
 		p := polynomial{"branchPoint", 0}

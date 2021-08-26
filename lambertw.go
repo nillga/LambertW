@@ -64,6 +64,7 @@ var (
 func W(branch int, x float64) float64 {
 	wOfX := new(w)
 	wOfX.setup(branch)
+	wOfX.x = x
 	return wOfX.router()
 }
 func (w *w) setup(branch int) {
