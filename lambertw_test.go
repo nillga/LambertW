@@ -1,6 +1,7 @@
 package lambertw
 
 import (
+	"math"
 	"testing"
 )
 
@@ -127,6 +128,88 @@ func TestI_recurse (t *testing.T) {
 		want := halleyStep(1,0.5)
 		if got != want {
 			t.Errorf("Got %f, but wanted %f", got, want)
+		}
+	})
+}
+
+func TestBranch_branchPointExpansion (t *testing.T) {
+	t.Run("Upper Branch", func(t *testing.T) {
+		b := branch{branch: 0, order: 1, sgn: 1}
+		h := horner{"branchPoint", 1}
+		got := b.branchPointExpansion(0)
+		want := h.eval(math.Sqrt(2))
+
+		if got != want {
+			t.Errorf("Got %f but wanted %f", got, want)
+		}
+	})
+	t.Run("Lower Branch", func(t *testing.T) {
+		b := branch{branch: -1, order: 1, sgn: -1}
+		h := horner{"branchPoint", 1}
+		got := b.branchPointExpansion(0)
+		want := h.eval(-math.Sqrt(2))
+
+		if got != want {
+			t.Errorf("Got %f but wanted %f", got, want)
+		}
+	})
+}
+func TestBranch_asymptoticExpansion (t *testing.T) {
+	t.Run("Upper Branch", func(t *testing.T) {
+		b := branch{branch: 0, order: 1, sgn: 1}
+		got := b.asymptoticExpansion(math.E)
+		want := asymptoticExpansionImpl(1, 0, 1)
+
+		if got != want {
+			t.Errorf("Got %f but wanted %f", got, want)
+		}
+	})
+	t.Run("Lower Branch", func(t *testing.T) {
+		b := branch{branch: -1, order: 1, sgn: -1}
+		got := b.asymptoticExpansion(-math.Exp(-1))
+		want := asymptoticExpansionImpl(-1,0,1)
+
+		if got != want {
+			t.Errorf("Got %f but wanted %f", got, want)
+		}
+	})
+}
+
+func TestAsymptoticExpansionImpl (t *testing.T) {
+	got := asymptoticExpansionImpl(1,0,1)
+
+	h := horner{"AsymptoticPolynomialA",1}
+	want := h.eval2(1,0) + 1
+
+	if got != want {
+		t.Errorf("Got %f but wanted %f", got, want)
+	}
+}
+
+func TestBranch_logRecursion (t *testing.T) {
+	b := branch{sgn:1, order: 1}
+	got := b.logRecursion(math.E)
+
+	if got != 1 {
+		t.Errorf("Got %f but wanted 1", got)
+	}
+}
+
+func TestLogRecursionImpl_step (t *testing.T) {
+	t.Run("order == 0 --> stop case", func(t *testing.T) {
+		l := logRecursionImpl{order: 0}
+		got := l.step(0)
+
+		if got != 0 {
+			t.Errorf("Got %f but wanted 0", got)
+		}
+	})
+	t.Run("order == 1 --> recursion", func(t *testing.T) {
+		l := logRecursionImpl{order: 1, sgn: 1}
+		got := l.step(1)
+
+		if got != 1 {
+			t.Errorf("Got %f but wanted 0", got)
 		}
 	})
 }
