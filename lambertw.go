@@ -3,10 +3,11 @@ package lambertw
 /*
 *	## CREDITS GO TO DARKO VEBERIC, WHO IMPLEMENTED THIS METHOD FIRST, IN C++ ##
 *
+*	## TEST COVERAGE -- 98.6% ##
+*
 *	 TODOS:
 *	 ------
 *
-*	- Implement Tests -- Coverage: 73.0% -- Missing: navigation + W(b,x)
 *	- Benchmark this mess
 *	- Split in multiple files -- Routing file // methods
 *	- refactoring
