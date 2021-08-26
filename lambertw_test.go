@@ -69,11 +69,22 @@ func TestHornerLib (t *testing.T) {
 		}
 	})
 	t.Run("AsymptoticA", func(t *testing.T) {
-		got := hornerLib("AsymptoticPolynomialA",0,1)
+		t.Run("order == 0 / 1", func(t *testing.T) {
+			got := hornerLib("AsymptoticPolynomialA",0,1)
 
-		if got != -1 {
-			t.Errorf("Got %f but expected -1", got)
-		}
+			if got != -1 {
+				t.Errorf("Got %f but expected -1", got)
+			}
+		})
+		t.Run("order == 2 ... 5", func(t *testing.T) {
+			got := hornerLib("AsymptoticPolynomialA",2,1)
+			h := horner{2,2}
+			want := h.eval(1)
+
+			if got != want {
+				t.Errorf("Got %f but expected %f", got, want)
+			}
+		})
 	})
 	t.Run("AsymptoticB", func(t *testing.T) {
 		got := hornerLib(1,0,0)
@@ -90,4 +101,32 @@ func TestHalleyStep (t *testing.T) {
 	if got != 0.5 {
 		t.Errorf("Got %f but wanted 0.5", got)
 	}
+}
+
+func TestI_recurse (t *testing.T) {
+	t.Run("Depth == 0", func(t *testing.T) {
+		i := iterator{halleyStep,0}
+
+		got := i.recurse(1,0)
+		if got != 0 {
+			t.Errorf("Got %f but wanted 1", got)
+		}
+	})
+	t.Run("Depth == 1", func(t *testing.T) {
+		i := iterator{halleyStep,1}
+
+		got := i.recurse(1,0)
+		if got != 0.5 {
+			t.Errorf("Got %f but wanted 0.5", got)
+		}
+	})
+	t.Run("Depth == 2", func(t *testing.T) {
+		i := iterator{halleyStep,2}
+
+		got := i.recurse(1,0)
+		want := halleyStep(1,0.5)
+		if got != want {
+			t.Errorf("Got %f, but wanted %f", got, want)
+		}
+	})
 }

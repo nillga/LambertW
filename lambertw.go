@@ -184,8 +184,11 @@ func hornerLib(t interface{},order int, x float64) float64 {
 			case 1:
 				return x
 			case 2:
+				fallthrough
 			case 3:
+				fallthrough
 			case 4:
+				fallthrough
 			case 5:
 				h := horner{order,order}
 				return h.eval(x)
