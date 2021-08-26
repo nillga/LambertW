@@ -2,6 +2,16 @@ package lambertw
 
 import "math"
 
+type fukushima struct {
+	n int
+	branch int
+
+	a []float64
+	b []float64
+	e []float64
+	g []float64
+}
+
 var q = []float64{
 	-1,
 	+1,
@@ -26,32 +36,46 @@ var q = []float64{
 	-0.0000581136075044138168,
   }
 
-func fukushimaW0 (x float64) float64 {
-	e := make([]float64, 66)
-	g := make([]float64, 65)
-	a := make([]float64, 12)
-	b := make([]float64, 12)
+func Fukushima(branch int, x float64) float64 {
+	f := fukushima{branch: branch}
+	switch {
+	case branch == 0:
+		return f.w0(x)
+	case branch < 0:
+		f.branch = -1
+		return f.wm1(x)
+	default:
+		return math.NaN()
+	}
+}
 
-	if e[0] == 0 {
+func (f *fukushima) w0(x float64) float64 {
+	f.branch = 0
+	f.e = make([]float64, 66)
+	f.g = make([]float64, 65)
+	f.a = make([]float64, 12)
+	f.b = make([]float64, 12)
+
+	if f.e[0] == 0 {
 		e1 := math.Exp(-1)
 		ej := 1.0
-		e[0] = math.E
-		e[1] = 1
-		g[0] = 0
+		f.e[0] = math.E
+		f.e[1] = 1
+		f.g[0] = 0
 
 		for j,jj := 1,2; jj < 66; jj++ {
 			ej *= math.E
-			e[jj] = e[j] * e1
-			g[j] = float64(j) * ej
+			f.e[jj] = f.e[j] * e1
+			f.g[j] = float64(j) * ej
 			j = jj
 		}
 
-		a[0] = math.Sqrt(e1)
-		b[0] = 0.5
+		f.a[0] = math.Sqrt(e1)
+		f.b[0] = 0.5
 
 		for j,jj := 0,1; jj < 12; jj++ {
-			a[jj] = math.Sqrt(a[j])
-			b[jj] = b[j] * 0.5
+			f.a[jj] = math.Sqrt(f.a[j])
+			f.b[jj] = f.b[j] * 0.5
 			j = jj
 		}
 	}
@@ -71,54 +95,135 @@ func fukushimaW0 (x float64) float64 {
 		return math.NaN()
 	}
 
-	var n int
-
-	for n = 0; n <= 2; n++ {
-		if g[n] > x {
-//			goto line1	
+	for f.n = 0; f.n <= 2; f.n++ {
+		if f.g[f.n] > x {
+			return f.step1(x)
 		}
 	}
 
-	n = 2
+	f.n = 2
 
 	for j := 1; j <= 5; j++ {
-		n *= 2
-		if g[n] > x {
-//			goto line2
+		f.n *= 2
+		if f.g[f.n] > x {
+			return f.step2(x)
 		}
 	}
 
 	return math.NaN()
 }
 
-func fukushimaWm1 (x float64) float64 {
-	e := make([]float64, 64)
-	g := make([]float64, 64)
-	a := make([]float64, 12)
-	b := make([]float64, 12)
+func (f *fukushima) step2(x float64) float64 {
+	nh := f.n / 2
 
-	if e[0] == 0 {
+	for j := 1; j <= 5; j++ {
+		nh /= 2
+		if nh <= 0 {
+			return f.step1(x)
+		}
+		if f.g[f.n-nh + f.branch] > x {
+			f.n -= nh
+		}
+	}
+	return f.step1(x)
+}
+
+func (f *fukushima) step1(x float64) float64 {
+	f.n--
+	jmax := 8 - 3 * f.branch
+
+	if f.branch == 0 {
+		switch {
+		case x <= -0.36:
+			jmax = 12
+		case x <= -0.3:
+			jmax = 11
+		case f.n <= 0:
+			jmax = 10
+		case f.n <= 1:
+			jmax = 9
+		}
+	} else {
+		switch {
+		case f.n >= 8:
+			jmax = 8
+		case f.n >= 3:
+			jmax = 9
+		case f.n >= 2:
+			jmax = 10
+		}
+	}
+
+	y := x * f.e[f.n + 2 * f.branch + 1]
+	w := float64(f.n * (2 * f.branch + 1))
+
+	for j := 0; j < jmax; j++ {
+		wj := w + float64(2 * f.branch + 1) * f.b[j]
+		yj := y * f.a[j]
+
+		if wj < yj {
+			w = wj
+			y = yj
+		}
+	}
+	return finalResult(w,y)
+}
+
+func (f *fukushima) wm1(x float64) float64 {
+	f.e = make([]float64, 64)
+	f.g = make([]float64, 64)
+	f.a = make([]float64, 12)
+	f.b = make([]float64, 12)
+
+	if f.e[0] == 0 {
 		e1 := math.Exp(-1)
 		ej := e1
-		e[0] = math.E
-		g[0] = -e1
+		f.e[0] = math.E
+		f.g[0] = -e1
 
 		for j,jj := 0,1; jj < 64; jj++ {
 			ej *= e1
-			e[jj] = e[j] * math.E
-			g[j] = float64(-(jj+1)) * ej
+			f.e[jj] = f.e[j] * math.E
+			f.g[j] = float64(-(jj+1)) * ej
 			j = jj
 		}
 
-		a[0] = math.Sqrt(math.E)
-		b[0] = 0.5
+		f.a[0] = math.Sqrt(math.E)
+		f.b[0] = 0.5
 
 		for j,jj := 0,1; jj < 12; jj++ {
-			a[jj] = math.Sqrt(a[j])
-			b[jj] = b[j] * 0.5
+			f.a[jj] = math.Sqrt(f.a[j])
+			f.b[jj] = f.b[j] * 0.5
 			j = jj
 		}
 	}
+
+	if x >= 0 {
+		return math.NaN()
+	}
+
+	if x < -0.35 {
+		p2 := 2 * (math.E * x + 1)
+		if p2 > 0 {
+			return lambertWSeries(-math.Sqrt(p2))
+		}
+		if p2 == 0 {
+			return -1
+		}
+		return math.NaN()
+	}
+	f.n = 2
+
+	if f.g[f.n-1] > x {
+		return f.step1(x)
+	}
+	for j := 1; j <= 5; j++ {
+		f.n *= 2
+		if f.g[f.n-1] > x {
+			return f.step2(x)
+		}
+	}
+	return math.NaN()
 }
 
 func lambertW0ZeroSeries(x float64) float64 {
