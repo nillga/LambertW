@@ -6,7 +6,7 @@ package lambertw
 *	 TODOS:
 *	 ------
 *
-*	- Implement Tests -- Coverage: 62.8% -- Missing: Pade + navigation + W(b,x)
+*	- Implement Tests -- Coverage: 73.0% -- Missing: navigation + W(b,x)
 *	- Benchmark this mess
 *	- Split in multiple files -- Routing file // methods
 *	- refactoring
