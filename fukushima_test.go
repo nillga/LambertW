@@ -26,9 +26,6 @@ func TestFukushima(t *testing.T) {
 		dx := (x-z)/(1e-16+math.Abs(z))
 		res += fmt.Sprintf("%20.15f%25.15e%10.2e%10.2e\n",w,z,du,dx)
 	}
-//    write(*,"(0pf20.13,1pe25.15,1p2e10.2)") w,z,du,dx
+//	t.Logf(res)
 	t.Errorf(res)
-	_ = math.E
-	branch, x := -1, -3.346952402226447E-01
-	t.Errorf("\nFukushima: %.16f\nVeberic: %.16f",Fukushima(branch,x),W(branch,x))
 }
