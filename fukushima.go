@@ -5,6 +5,7 @@ import "math"
 type fukushima struct {
 	n int
 	branch int
+	sgn int
 
 	a []float64
 	b []float64
@@ -37,9 +38,10 @@ var q = []float64{
   }
 
 func Fukushima(branch int, x float64) float64 {
-	f := fukushima{branch: branch}
+	f := fukushima{branch: branch, sgn: -1}
 	switch {
 	case branch == 0:
+		f.sgn = 1
 		return f.w0(x)
 	case branch < 0:
 		f.branch = -1
@@ -50,7 +52,6 @@ func Fukushima(branch int, x float64) float64 {
 }
 
 func (f *fukushima) w0(x float64) float64 {
-	f.branch = 0
 	f.e = make([]float64, 66)
 	f.g = make([]float64, 65)
 	f.a = make([]float64, 12)
@@ -154,11 +155,11 @@ func (f *fukushima) step1(x float64) float64 {
 		}
 	}
 
-	y := x * f.e[f.n + 2 * f.branch + 1]
-	w := float64(f.n * (2 * f.branch + 1))
+	y := x * f.e[f.n + f.sgn]
+	w := float64(f.n * f.sgn)
 
 	for j := 0; j < jmax; j++ {
-		wj := w + float64(2 * f.branch + 1) * f.b[j]
+		wj := w + float64(f.sgn) * f.b[j]
 		yj := y * f.a[j]
 
 		if wj < yj {
